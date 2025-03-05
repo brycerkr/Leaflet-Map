@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, LayersControl, LayerGroup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, LayersControl, LayerGroup, Circle } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 
 const Map = () => {
@@ -39,9 +39,7 @@ const Map = () => {
                 <LayersControl.Overlay name="Water Taps">
                     <LayerGroup>
                     {locations.map((location) => (
-                        <Marker position={[location.lat, location.lon]}>
-                            <Popup>Water Tap</Popup>
-                        </Marker>
+                        <Circle center={[location.lat, location.lon]} pathOptions={{stroke : false}} radius={200}/>
                     ))}
                     </LayerGroup>
                 </LayersControl.Overlay>
