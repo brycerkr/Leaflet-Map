@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, LayersControl, LayerGroup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 
 const Map = () => {
@@ -30,16 +30,22 @@ const Map = () => {
 
     return (
         <MapContainer center={[31.905, 36.581]} zoom={15} style={{ height: "800px", width: "100%" }}>
-            <TileLayer  
+            <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             />
 
-            {locations.map((location) => (
-                <Marker position={[location.lat, location.lon]}>
-                    <Popup>Water Tap</Popup>
-                </Marker>
-            ))}
+            <LayersControl>
+                <LayersControl.Overlay name="Water Taps">
+                    <LayerGroup>
+                    {locations.map((location) => (
+                        <Marker position={[location.lat, location.lon]}>
+                            <Popup>Water Tap</Popup>
+                        </Marker>
+                    ))}
+                    </LayerGroup>
+                </LayersControl.Overlay>
+            </LayersControl>
         </MapContainer>
     );
 };
