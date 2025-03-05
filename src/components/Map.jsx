@@ -1,9 +1,31 @@
 import { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, LayersControl, LayerGroup, Circle, GeoJSON } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, LayersControl, LayerGroup, Circle, GeoJSON, Tooltip } from 'react-leaflet';
 import osmtogeojson from 'osmtogeojson';
 import 'leaflet/dist/leaflet.css';
 
 const Map = () => {
+
+    const defaultStyle = {     
+        weight: 0,          
+        fillColor: 'blue',  
+        fillOpacity: 0.2,
+    };
+
+    function onEachFeature(feature, layer) {
+        layer.on({
+            mouseover: (e) => {
+                e.target.setStyle({
+                    fillOpacity: 0.4,
+                });
+            },
+            mouseout: (e) => {
+                e.target.setStyle(defaultStyle);
+            },
+        });
+
+        layer.bindTooltip("Replace me with data");
+    }
+
     const [tapLocations, setTapLocations] = useState([]);
     const [neighbourhoodLocations, setNeighbourhoodLocations] = useState(null);
 
@@ -60,7 +82,7 @@ const Map = () => {
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             />
-            
+
 
             <LayersControl position="topright">
                 <LayersControl.Overlay name="Water Taps">
@@ -70,10 +92,20 @@ const Map = () => {
                         ))}
                     </LayerGroup>
                 </LayersControl.Overlay>
-                <LayersControl.Overlay name="Shelter Occupancy">
+                <LayersControl.Overlay name="Neighbourhood data">
                     <LayerGroup>
-                        {neighbourhoodLocations && <GeoJSON data={neighbourhoodLocations} style={() => ({ color: 'red', weight: 0, fillOpacity: 0.3 })}/>}
-                        
+                        {neighbourhoodLocations &&
+                            <GeoJSON
+                                data={neighbourhoodLocations}
+                                style={defaultStyle}
+                                onEachFeature={(feature, layer) => {
+                                    onEachFeature(feature, layer);
+                                    <Tooltip>
+                                        Hi I'm a tooltip
+                                    </Tooltip>
+                                }}
+                            />
+                        }
                     </LayerGroup>
                 </LayersControl.Overlay>
             </LayersControl>
