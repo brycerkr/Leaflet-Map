@@ -5,9 +5,9 @@ import 'leaflet/dist/leaflet.css';
 
 const Map = () => {
 
-    const defaultStyle = {     
-        weight: 0,          
-        fillColor: 'blue',  
+    const defaultStyle = {
+        weight: 0,
+        fillColor: 'blue',
         fillOpacity: 0.2,
     };
 
@@ -78,13 +78,20 @@ const Map = () => {
 
     return (
         <MapContainer center={[31.905, 36.581]} zoom={15} style={{ height: "800px", width: "100%" }}>
-            <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            />
-
-
             <LayersControl position="topright">
+                <LayersControl.BaseLayer checked name="OpenStreetMap">
+                    <TileLayer
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    />
+                </LayersControl.BaseLayer>
+                <LayersControl.BaseLayer name="Google Maps">
+                    <TileLayer
+                        url="https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
+                        subdomains= {["mt0", "mt1", "mt2", "mt3"]}
+                        attribution="&copy; Google"
+                    />
+                </LayersControl.BaseLayer>
                 <LayersControl.Overlay name="Water Taps">
                     <LayerGroup>
                         {tapLocations.map((location) => (
