@@ -5,7 +5,7 @@ import 'leaflet/dist/leaflet.css';
 
 const Map = () => {
     const [tapLocations, setTapLocations] = useState([]);
-    const [houseLocations, setHouseLocations] = useState(null);
+    const [neighbourhoodLocations, setNeighbourhoodLocations] = useState(null);
 
 
     useEffect(() => {
@@ -28,30 +28,30 @@ const Map = () => {
             }
         };
 
-        const fetchHouseData = async () => {
-            const houseQuery = `
+        const fetchNeighbourhoodData = async () => {
+            const neighbourhoodQuery = `
             [out:json];
             (
-            way["building"="house"](31.8,36.55,31.95,36.6);
+            way["place"="neighbourhood"](31.8,36.55,31.95,36.6);
             );
             out geom;
             `;
 
-            const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(houseQuery)}`;
+            const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(neighbourhoodQuery)}`;
 
             try {
                 const response = await fetch(url);
                 const data = await response.json();
                 const geoJSON = osmtogeojson(data);
 
-                setHouseLocations(geoJSON);
+                setNeighbourhoodLocations(geoJSON);
             } catch (error) {
                 console.error("Error fetching Overpass data:", error);
             }
         };
 
         fetchTapData();
-        fetchHouseData();
+        fetchNeighbourhoodData();
     }, []);
 
     return (
@@ -72,7 +72,7 @@ const Map = () => {
                 </LayersControl.Overlay>
                 <LayersControl.Overlay name="Shelter Occupancy">
                     <LayerGroup>
-                        {houseLocations && <GeoJSON data={houseLocations} style={() => ({ color: 'red', weight: 0, fillOpacity: 0.3 })}/>}
+                        {neighbourhoodLocations && <GeoJSON data={neighbourhoodLocations} style={() => ({ color: 'red', weight: 0, fillOpacity: 0.3 })}/>}
                         
                     </LayerGroup>
                 </LayersControl.Overlay>
