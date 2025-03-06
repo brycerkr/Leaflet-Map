@@ -1,33 +1,43 @@
 import { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, LayersControl, LayerGroup, Circle, GeoJSON, Tooltip } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, LayersControl, LayerGroup, Circle, GeoJSON, useMapEvents } from 'react-leaflet';
 import osmtogeojson from 'osmtogeojson';
 import 'leaflet/dist/leaflet.css';
 
+const defaultStyle = {
+    weight: 0,
+    fillColor: 'blue',
+    fillOpacity: 0.2,
+};
+
+function onEachFeature(feature, layer) {
+    layer.on({
+        mouseover: (e) => {
+            e.target.setStyle({
+                fillOpacity: 0.4,
+            });
+        },
+        mouseout: (e) => {
+            e.target.setStyle(defaultStyle);
+        },
+    });
+
+    layer.bindTooltip("Replace me with data");
+}
+
+function ClickHandler({ onMapClick }) {
+    useMapEvents({
+        click(e) {
+            onMapClick(e.latlng);
+        }
+    });
+    return null;
+}
+
 const Map = () => {
-
-    const defaultStyle = {
-        weight: 0,
-        fillColor: 'blue',
-        fillOpacity: 0.2,
-    };
-
-    function onEachFeature(feature, layer) {
-        layer.on({
-            mouseover: (e) => {
-                e.target.setStyle({
-                    fillOpacity: 0.4,
-                });
-            },
-            mouseout: (e) => {
-                e.target.setStyle(defaultStyle);
-            },
-        });
-
-        layer.bindTooltip("Replace me with data");
-    }
 
     const [tapLocations, setTapLocations] = useState([]);
     const [neighbourhoodLocations, setNeighbourhoodLocations] = useState(null);
+    const [customTents, setCustomTents] = useState([]);
 
 
     useEffect(() => {
@@ -76,8 +86,13 @@ const Map = () => {
         fetchNeighbourhoodData();
     }, []);
 
+    const handleMapClick = (latlng) => {
+        setCustomTents((prev) => [...prev, latlng]);
+    };
+
     return (
         <MapContainer center={[31.905, 36.581]} zoom={15} style={{ height: "800px", width: "100%" }}>
+            <ClickHandler onMapClick={handleMapClick} />
             <LayersControl position="topright">
                 <LayersControl.BaseLayer checked name="OpenStreetMap">
                     <TileLayer
@@ -88,7 +103,7 @@ const Map = () => {
                 <LayersControl.BaseLayer name="Google Maps">
                     <TileLayer
                         url="https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
-                        subdomains= {["mt0", "mt1", "mt2", "mt3"]}
+                        subdomains={["mt0", "mt1", "mt2", "mt3"]}
                         attribution="&copy; Google"
                     />
                 </LayersControl.BaseLayer>
@@ -107,15 +122,24 @@ const Map = () => {
                                 style={defaultStyle}
                                 onEachFeature={(feature, layer) => {
                                     onEachFeature(feature, layer);
-                                    <Tooltip>
-                                        Hi I'm a tooltip
-                                    </Tooltip>
                                 }}
                             />
                         }
                     </LayerGroup>
                 </LayersControl.Overlay>
+                <LayersControl.Overlay name="Add/View custom tents">
+                    <LayerGroup>
+                        {customTents.map((pos, idx) => (
+                            <Marker key={idx} position={pos}>
+                                <Popup>
+                                    <p>You clicked at {pos.lat.toFixed(5)}, {pos.lng.toFixed(5)}</p>
+                                </Popup>
+                            </Marker>
+                        ))}
+                    </LayerGroup>
+                </LayersControl.Overlay>
             </LayersControl>
+
         </MapContainer>
     );
 };
